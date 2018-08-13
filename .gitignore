@@ -9,4 +9,6 @@ tools/mkimage
 u-boot
 u-boot.srec
 .config
+.config.old
+scripts/lxdialog/lxdialog
 autoconf.h
