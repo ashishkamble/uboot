@@ -24,6 +24,7 @@
 #include <common.h>
 #include <command.h>
 #include <image.h>
+#include <version.h>
 #include <zlib.h>
 #include <asm/byteorder.h>
 #include <asm/addrspace.h>
@@ -64,6 +65,7 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	void (*theKernel) (int, char **, char **, int *);
 	image_header_t *hdr = &header;
 	char *commandline = getenv ("bootargs");
+	char temp[256]="";
 	char env_buf[12];
 	int i;
 
@@ -182,8 +184,16 @@ void do_bootm_linux (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[],
 	printf ("## Transferring control to Linux (at address %08lx) ...\n",
 		(ulong) theKernel);
 #endif
-
-	linux_params_init (UNCACHED_SDRAM (gd->bd->bi_boot_params), commandline);
+	extern int bootcause;
+	char version_string_custom[50];
+	strcpy(version_string_custom,U_BOOT_VERSION_CUSTOM);
+	sprintf(&version_string_custom[strlen(U_BOOT_VERSION_CUSTOM)],"-%c%c%c/%c%c/%c%c%c%c-%s",__DATE__[0],__DATE__[1],__DATE__[2],__DATE__[4],__DATE__[5],__DATE__[7],__DATE__[8],__DATE__[9],__DATE__[10],__TIME__ );
+	sprintf(temp,"bootcause=%d ",bootcause);
+	strcat(temp,"ubootversion=");
+	strcat(temp,version_string_custom);
+	strcat(temp," ");
+	strcat(temp,commandline);
+	linux_params_init (UNCACHED_SDRAM (gd->bd->bi_boot_params), temp);
 
 #ifdef CONFIG_MEMSIZE_IN_BYTES
 	sprintf (env_buf, "%lu", gd->ram_size);
