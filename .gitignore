@@ -1,0 +1,12 @@
+*.old
+*.bin
+*.o
+*.a
+*.depend
+*.map
+*.img
+tools/mkimage
+u-boot
+u-boot.srec
+.config
+autoconf.h
