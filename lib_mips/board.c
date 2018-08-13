@@ -33,20 +33,20 @@
 #include <spi_api.h>
 #include <nand_api.h>
 
- DECLARE_GLOBAL_DATA_PTR;
+DECLARE_GLOBAL_DATA_PTR;
 int bootcause=0,oldbootcause=0;;
 #undef DEBUG
 
 #define SDRAM_CFG1_REG RALINK_SYSCTL_BASE + 0x0304
 
- int modifies= 0;
+int modifies= 0;
 
 #ifdef DEBUG
    #define DATE      "05/25/2006"
    #define VERSION   "v0.00e04"
 #endif
 #if ( ((CFG_ENV_ADDR+CFG_ENV_SIZE) < CFG_MONITOR_BASE) || \
- (CFG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
+(CFG_ENV_ADDR >= (CFG_MONITOR_BASE + CFG_MONITOR_LEN)) ) || \
 defined(CFG_ENV_IS_IN_NVRAM)
 #define	TOTAL_MALLOC_LEN	(CFG_MALLOC_LEN + CFG_ENV_SIZE)
 #else
@@ -110,184 +110,184 @@ unsigned long mips_bus_feq;
 /*
  * Begin and End of memory area for malloc(), and current "brk"
  */
- static ulong mem_malloc_start;
- static ulong mem_malloc_end;
- static ulong mem_malloc_brk;
+static ulong mem_malloc_start;
+static ulong mem_malloc_end;
+static ulong mem_malloc_brk;
 
- static char  file_name_space[ARGV_LEN];
+static char  file_name_space[ARGV_LEN];
 
 #define read_32bit_cp0_register_with_select1(source)            \
- ({ int __res;                                                   \
- 	__asm__ __volatile__(                                   \
- 		".set\tpush\n\t"                                        \
- 		".set\treorder\n\t"                                     \
- 		"mfc0\t%0,"STR(source)",1\n\t"                          \
- 		".set\tpop"                                             \
- 		: "=r" (__res));                                        \
- 	__res;})
+({ int __res;                                                   \
+	__asm__ __volatile__(                                   \
+		".set\tpush\n\t"                                        \
+		".set\treorder\n\t"                                     \
+		"mfc0\t%0,"STR(source)",1\n\t"                          \
+		".set\tpop"                                             \
+		: "=r" (__res));                                        \
+	__res;})
 
 
- static void Init_System_Mode(void)
- {
- 	u32 reg;
+static void Init_System_Mode(void)
+{
+	u32 reg;
 #ifdef ASIC_BOARD
- 	u8	clk_sel;
+	u8	clk_sel;
 #endif
 #if defined(RT5350_ASIC_BOARD)
- 	u8	clk_sel2;
+	u8	clk_sel2;
 #endif
 
- 	reg = RALINK_REG(RT2880_SYSCFG_REG);
+	reg = RALINK_REG(RT2880_SYSCFG_REG);
 
 	/* 
 	 * CPU_CLK_SEL (bit 21:20)
 	 */
 #ifdef RT2880_FPGA_BOARD
-	 mips_cpu_feq = 25 * 1000 *1000;
-	 mips_bus_feq = mips_cpu_feq/2;
+	mips_cpu_feq = 25 * 1000 *1000;
+	mips_bus_feq = mips_cpu_feq/2;
 #elif defined (RT2883_FPGA_BOARD) || defined (RT3052_FPGA_BOARD) || defined (RT3352_FPGA_BOARD) || defined (RT5350_FPGA_BOARD)
-	 mips_cpu_feq = 40 * 1000 *1000;
-	 mips_bus_feq = mips_cpu_feq/3;
+	mips_cpu_feq = 40 * 1000 *1000;
+	mips_bus_feq = mips_cpu_feq/3;
 #elif defined (RT6855A_FPGA_BOARD)
-	 mips_cpu_feq = 50 * 1000 *1000;
-	 mips_bus_feq = mips_cpu_feq/2;
+	mips_cpu_feq = 50 * 1000 *1000;
+	mips_bus_feq = mips_cpu_feq/2;
 #elif defined (RT3883_FPGA_BOARD)
-	 mips_cpu_feq = 40 * 1000 *1000;
-	 mips_bus_feq = mips_cpu_feq;
+	mips_cpu_feq = 40 * 1000 *1000;
+	mips_bus_feq = mips_cpu_feq;
 #elif defined (RT6855_FPGA_BOARD) || defined (MT7620_FPGA_BOARD) || defined (MT7628_FPGA_BOARD)
-	 mips_cpu_feq = 50 * 1000 *1000;
-	 mips_bus_feq = mips_cpu_feq/4;
+	mips_cpu_feq = 50 * 1000 *1000;
+	mips_bus_feq = mips_cpu_feq/4;
 #elif defined (MT7621_FPGA_BOARD)
-	 mips_cpu_feq = 50 * 1000 *1000;
-	 mips_bus_feq = mips_cpu_feq/4;
+	mips_cpu_feq = 50 * 1000 *1000;
+	mips_bus_feq = mips_cpu_feq/4;
 #elif defined (RT2883_ASIC_BOARD) 
-	 clk_sel = (reg>>20) & 0x03;
-	 switch(clk_sel) {
-	 	case 0:
-	 	mips_cpu_feq = (380*1000*1000);
-	 	break;
-	 	case 1:
-	 	mips_cpu_feq = (400*1000*1000);
-	 	break;
-	 	case 2:
-	 	mips_cpu_feq = (420*1000*1000);
-	 	break;
-	 	case 3:
-	 	mips_cpu_feq = (430*1000*1000);
-	 	break;
-	 }
-	 mips_bus_feq = mips_cpu_feq/2;
+	clk_sel = (reg>>20) & 0x03;
+	switch(clk_sel) {
+		case 0:
+		mips_cpu_feq = (380*1000*1000);
+		break;
+		case 1:
+		mips_cpu_feq = (400*1000*1000);
+		break;
+		case 2:
+		mips_cpu_feq = (420*1000*1000);
+		break;
+		case 3:
+		mips_cpu_feq = (430*1000*1000);
+		break;
+	}
+	mips_bus_feq = mips_cpu_feq/2;
 #elif defined(RT3052_ASIC_BOARD)
 #if defined(RT3350_ASIC_BOARD) 
 	//MA10 is floating
-	 mips_cpu_feq = (320*1000*1000);
+	mips_cpu_feq = (320*1000*1000);
 #else
-	 clk_sel = (reg>>18) & 0x01;
-	 switch(clk_sel) {
-	 	case 0:
-	 	mips_cpu_feq = (320*1000*1000);
-	 	break;
-	 	case 1:
-	 	mips_cpu_feq = (384*1000*1000);
-	 	break;
-	 }
+	clk_sel = (reg>>18) & 0x01;
+	switch(clk_sel) {
+		case 0:
+		mips_cpu_feq = (320*1000*1000);
+		break;
+		case 1:
+		mips_cpu_feq = (384*1000*1000);
+		break;
+	}
 #endif
-	 mips_bus_feq = mips_cpu_feq / 3;
+	mips_bus_feq = mips_cpu_feq / 3;
 #elif defined(RT3352_ASIC_BOARD)
-	 clk_sel = (reg>>8) & 0x01;
-	 switch(clk_sel) {
-	 	case 0:
-	 	mips_cpu_feq = (384*1000*1000);
-	 	break;
-	 	case 1:
-	 	mips_cpu_feq = (400*1000*1000);
-	 	break;
-	 }
-	 mips_bus_feq = (133*1000*1000);
+	clk_sel = (reg>>8) & 0x01;
+	switch(clk_sel) {
+		case 0:
+		mips_cpu_feq = (384*1000*1000);
+		break;
+		case 1:
+		mips_cpu_feq = (400*1000*1000);
+		break;
+	}
+	mips_bus_feq = (133*1000*1000);
 #elif defined(RT5350_ASIC_BOARD)
-	 clk_sel2 = (reg>>10) & 0x01;
-	 clk_sel = ((reg>>8) & 0x01) + (clk_sel2 * 2);
-	 switch(clk_sel) {
-	 	case 0:
-	 	mips_cpu_feq = (360*1000*1000);
-	 	mips_bus_feq = (120*1000*1000);
-	 	break;
-	 	case 1:
+	clk_sel2 = (reg>>10) & 0x01;
+	clk_sel = ((reg>>8) & 0x01) + (clk_sel2 * 2);
+	switch(clk_sel) {
+		case 0:
+		mips_cpu_feq = (360*1000*1000);
+		mips_bus_feq = (120*1000*1000);
+		break;
+		case 1:
 			//reserved
-	 	break;
-	 	case 2:
-	 	mips_cpu_feq = (320*1000*1000);
-	 	mips_bus_feq = (80*1000*1000);
-	 	break;
-	 	case 3:
-	 	mips_cpu_feq = (300*1000*1000);
-	 	mips_bus_feq = (100*1000*1000);
-	 	break;
-	 }
+		break;
+		case 2:
+		mips_cpu_feq = (320*1000*1000);
+		mips_bus_feq = (80*1000*1000);
+		break;
+		case 3:
+		mips_cpu_feq = (300*1000*1000);
+		mips_bus_feq = (100*1000*1000);
+		break;
+	}
 #elif defined(RT6855_ASIC_BOARD)
-	 mips_cpu_feq = (400*1000*1000);
-	 mips_bus_feq = (133*1000*1000);
+	mips_cpu_feq = (400*1000*1000);
+	mips_bus_feq = (133*1000*1000);
 #elif defined (RT6855A_ASIC_BOARD)
 	/* FPGA is 25/32Mhz
 	 * ASIC RT6856/RT63368: DDR(0): 233.33, DDR(1): 175, SDR: 140
 	 *      RT6855/RT6855A: DDR(0): 166.67, DDR(1): 125, SDR: 140 */
-	 reg = RALINK_REG(RT2880_SYSCFG_REG);
+	reg = RALINK_REG(RT2880_SYSCFG_REG);
 	if ((reg & (1 << 25)) == 0) { /* SDR */
-	 if ((reg & (1 << 9)) != 0)
-	 	mips_cpu_feq = (560*1000*1000);
-	 else {
-	 	if ((reg & (1 << 26)) != 0)	
-	 		mips_cpu_feq = (560*1000*1000);
-	 	else
-	 		mips_cpu_feq = (420*1000*1000);
-	 }	
-	 mips_bus_feq = (140*1000*1000);
+	if ((reg & (1 << 9)) != 0)
+		mips_cpu_feq = (560*1000*1000);
+	else {
+		if ((reg & (1 << 26)) != 0)	
+			mips_cpu_feq = (560*1000*1000);
+		else
+			mips_cpu_feq = (420*1000*1000);
+	}	
+	mips_bus_feq = (140*1000*1000);
 	} else { /* DDR */
-	 if ((reg & (1 << 9)) != 0) {
-	 	mips_cpu_feq = (700*1000*1000);
-	 	if ((reg & (1 << 26)) != 0)
-	 		mips_bus_feq = (175*1000*1000);
-	 	else
-	 		mips_bus_feq = 233333333;
-	 } else {
-	 	mips_cpu_feq = (500*1000*1000);
-	 	if ((reg & (1 << 26)) != 0)
-	 		mips_bus_feq = (125*1000*1000);
-	 	else
-	 		mips_bus_feq = 166666667;
-	 }
+	if ((reg & (1 << 9)) != 0) {
+		mips_cpu_feq = (700*1000*1000);
+		if ((reg & (1 << 26)) != 0)
+			mips_bus_feq = (175*1000*1000);
+		else
+			mips_bus_feq = 233333333;
+	} else {
+		mips_cpu_feq = (500*1000*1000);
+		if ((reg & (1 << 26)) != 0)
+			mips_bus_feq = (125*1000*1000);
+		else
+			mips_bus_feq = 166666667;
 	}
+}
 #elif defined(MT7620_ASIC_BOARD) || defined(MT7628_ASIC_BOARD)
-	reg = RALINK_REG(RALINK_CPLLCFG1_REG);
-	if( reg & ((0x1UL) << 24) ){
+reg = RALINK_REG(RALINK_CPLLCFG1_REG);
+if( reg & ((0x1UL) << 24) ){
 		mips_cpu_feq = (480*1000*1000);	/* from BBP PLL */
-	}else{
-		reg = RALINK_REG(RALINK_CPLLCFG0_REG);
-		if(!(reg & CPLL_SW_CONFIG)){
+}else{
+	reg = RALINK_REG(RALINK_CPLLCFG0_REG);
+	if(!(reg & CPLL_SW_CONFIG)){
 			mips_cpu_feq = (600*1000*1000); /* from CPU PLL */
-		}else{
+	}else{
 			/* read CPLL_CFG0 to determine real CPU clock */
-			int mult_ratio = (reg & CPLL_MULT_RATIO) >> CPLL_MULT_RATIO_SHIFT;
-			int div_ratio = (reg & CPLL_DIV_RATIO) >> CPLL_DIV_RATIO_SHIFT;
+		int mult_ratio = (reg & CPLL_MULT_RATIO) >> CPLL_MULT_RATIO_SHIFT;
+		int div_ratio = (reg & CPLL_DIV_RATIO) >> CPLL_DIV_RATIO_SHIFT;
 			mult_ratio += 24;       /* begin from 24 */
 			if(div_ratio == 0)      /* define from datasheet */
-			div_ratio = 2;
-			else if(div_ratio == 1)
-				div_ratio = 3;
-			else if(div_ratio == 2)
-				div_ratio = 4;
-			else if(div_ratio == 3)
-				div_ratio = 8;
-			mips_cpu_feq = ((BASE_CLOCK * mult_ratio ) / div_ratio) * 1000 * 1000;
-		}
+		div_ratio = 2;
+		else if(div_ratio == 1)
+			div_ratio = 3;
+		else if(div_ratio == 2)
+			div_ratio = 4;
+		else if(div_ratio == 3)
+			div_ratio = 8;
+		mips_cpu_feq = ((BASE_CLOCK * mult_ratio ) / div_ratio) * 1000 * 1000;
 	}
-	reg = (RALINK_REG(RT2880_SYSCFG_REG)) >> 4 & 0x3;
+}
+reg = (RALINK_REG(RT2880_SYSCFG_REG)) >> 4 & 0x3;
 	if(reg == 0x0){				/* SDR (MT7620 E1) */
-	mips_bus_feq = mips_cpu_feq/4;
+mips_bus_feq = mips_cpu_feq/4;
 	}else if(reg == 0x1 || reg == 0x2 ){	/* DDR1 & DDR2 */
-	mips_bus_feq = mips_cpu_feq/3;
+mips_bus_feq = mips_cpu_feq/3;
 	}else{					/* SDR (MT7620 E2) */
-	mips_bus_feq = mips_cpu_feq/5;
+mips_bus_feq = mips_cpu_feq/5;
 }
 #elif defined(MT7621_ASIC_BOARD)
 reg = RALINK_REG(RALINK_SYSCTL_BASE + 0x2C);
@@ -434,96 +434,96 @@ if( reg & ((0x1UL) << 30)) {
 	 * so we config it at 0x300 (suggested by ASIC)
 	 */
 #if defined(ON_BOARD_SDR) && defined(ON_BOARD_256M_DRAM_COMPONENT) && (!defined(MT7620_ASIC_BOARD))
-	 {
-	 	u32 tREF;
-	 	tREF = RALINK_REG(SDRAM_CFG1_REG);
-	 	tREF &= 0xffff0000;
+	{
+		u32 tREF;
+		tREF = RALINK_REG(SDRAM_CFG1_REG);
+		tREF &= 0xffff0000;
 #if defined(ASIC_BOARD)
-	 	tREF |= 0x00000300;
+		tREF |= 0x00000300;
 #elif defined(FPGA_BOARD) 
-	 	tREF |= 0x000004B;
+		tREF |= 0x000004B;
 #else
 #error "not exist"
 #endif
-	 	RALINK_REG(SDRAM_CFG1_REG) = tREF;
-	 }
+		RALINK_REG(SDRAM_CFG1_REG) = tREF;
+	}
 #endif
 
-	}
+}
 
 
 /*
  * The Malloc area is immediately below the monitor copy in DRAM
  */
- static void mem_malloc_init (void)
- {
+static void mem_malloc_init (void)
+{
 
- 	ulong dest_addr = CFG_MONITOR_BASE + gd->reloc_off;
+	ulong dest_addr = CFG_MONITOR_BASE + gd->reloc_off;
 
- 	mem_malloc_end = dest_addr;
- 	mem_malloc_start = dest_addr - TOTAL_MALLOC_LEN;
- 	mem_malloc_brk = mem_malloc_start;
+	mem_malloc_end = dest_addr;
+	mem_malloc_start = dest_addr - TOTAL_MALLOC_LEN;
+	mem_malloc_brk = mem_malloc_start;
 
- 	memset ((void *) mem_malloc_start,
- 		0,
- 		mem_malloc_end - mem_malloc_start);
- }
+	memset ((void *) mem_malloc_start,
+		0,
+		mem_malloc_end - mem_malloc_start);
+}
 
- void *sbrk (ptrdiff_t increment)
- {
- 	ulong old = mem_malloc_brk;
- 	ulong new = old + increment;
+void *sbrk (ptrdiff_t increment)
+{
+	ulong old = mem_malloc_brk;
+	ulong new = old + increment;
 
- 	if ((new < mem_malloc_start) || (new > mem_malloc_end)) {
- 		return (NULL);
- 	}
- 	mem_malloc_brk = new;
- 	return ((void *) old);
- }
+	if ((new < mem_malloc_start) || (new > mem_malloc_end)) {
+		return (NULL);
+	}
+	mem_malloc_brk = new;
+	return ((void *) old);
+}
 
- static int init_func_ram (void)
- {
+static int init_func_ram (void)
+{
 
 #ifdef	CONFIG_BOARD_TYPES
- 	int board_type = gd->board_type;
+	int board_type = gd->board_type;
 #else
 	int board_type = 0;	/* use dummy arg */
 #endif
- 	puts ("DRAM:  ");
+	puts ("DRAM:  ");
 
 /*init dram config*/
 #ifdef RALINK_DDR_OPTIMIZATION
 #ifdef ON_BOARD_DDR2
 /*optimize ddr parameter*/
- 	{	
- 		u32 tDDR;
- 		tDDR = RALINK_REG(DDR_CFG0_REG);
+	{	
+		u32 tDDR;
+		tDDR = RALINK_REG(DDR_CFG0_REG);
 
- 		tDDR &= 0xf0780000; 
- 		tDDR |=  RAS_VALUE << RAS_OFFSET;
- 		tDDR |=  TRFC_VALUE << TRFC_OFFSET;
- 		tDDR |=  TRFI_VALUE << TRFI_OFFSET;
- 		RALINK_REG(DDR_CFG0_REG) = tDDR;
- 	}
+		tDDR &= 0xf0780000; 
+		tDDR |=  RAS_VALUE << RAS_OFFSET;
+		tDDR |=  TRFC_VALUE << TRFC_OFFSET;
+		tDDR |=  TRFI_VALUE << TRFI_OFFSET;
+		RALINK_REG(DDR_CFG0_REG) = tDDR;
+	}
 #endif
 #endif
 
 
- 	if ((gd->ram_size = initdram (board_type)) > 0) {
- 		print_size (gd->ram_size, "\n");
- 		return (0);  
- 	}
- 	puts ("*** failed ***\n");
+	if ((gd->ram_size = initdram (board_type)) > 0) {
+		print_size (gd->ram_size, "\n");
+		return (0);  
+	}
+	puts ("*** failed ***\n");
 
- 	return (1);
- }
+	return (1);
+}
 
- static int display_banner(void)
- {
+static int display_banner(void)
+{
 
- 	printf ("\n\n%s\n\n", version_string);
- 	return (0);
- }
+	printf ("\n\n%s\n\n", version_string);
+	return (0);
+}
 
 /*
 static void display_flash_config(ulong size)
@@ -544,8 +544,8 @@ static int init_baudrate (void)
 			? (int) simple_strtoul (tmp, NULL, 10)
 			: CONFIG_BAUDRATE;
 */
-			return (0);
-		}
+	return (0);
+}
 
 
 /*
@@ -730,63 +730,63 @@ void board_init_f(ulong bootflag)
 	 * Now that we have DRAM mapped and working, we can
 	 * relocate the code and continue running from DRAM.
 	 */
-	 addr = CFG_SDRAM_BASE + gd->ram_size;
+	addr = CFG_SDRAM_BASE + gd->ram_size;
 
 	/* We can reserve some RAM "on top" here.
 	 */
-	 
+
 #ifdef DEBUG	    
-	 debug ("SERIAL_CLOCK_DIVISOR =%d \n", SERIAL_CLOCK_DIVISOR);
-	 debug ("kaiker,,CONFIG_BAUDRATE =%d \n", CONFIG_BAUDRATE); 
-	 debug ("SDRAM SIZE:%08X\n",gd->ram_size);
+	debug ("SERIAL_CLOCK_DIVISOR =%d \n", SERIAL_CLOCK_DIVISOR);
+	debug ("kaiker,,CONFIG_BAUDRATE =%d \n", CONFIG_BAUDRATE); 
+	debug ("SDRAM SIZE:%08X\n",gd->ram_size);
 #endif
 
 	/* round down to next 4 kB limit.
 	 */
-	 addr &= ~(4096 - 1);
+	addr &= ~(4096 - 1);
 #ifdef DEBUG
-	 debug ("Top of RAM usable for U-Boot at: %08lx\n", addr);
+	debug ("Top of RAM usable for U-Boot at: %08lx\n", addr);
 #endif	 
 
 	/* Reserve memory for U-Boot code, data & bss
 	 * round down to next 16 kB limit
 	 */
-	 addr -= len;
-	 addr &= ~(16 * 1024 - 1);
+	addr -= len;
+	addr &= ~(16 * 1024 - 1);
 #ifdef DEBUG
-	 debug ("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);
+	debug ("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);
 #endif
 	 /* Reserve memory for malloc() arena.
 	 */
-	 addr_sp = addr - TOTAL_MALLOC_LEN;
+	addr_sp = addr - TOTAL_MALLOC_LEN;
 #ifdef DEBUG
-	 debug ("Reserving %dk for malloc() at: %08lx\n",
-	 	TOTAL_MALLOC_LEN >> 10, addr_sp);
+	debug ("Reserving %dk for malloc() at: %08lx\n",
+		TOTAL_MALLOC_LEN >> 10, addr_sp);
 #endif
 	/*
 	 * (permanently) allocate a Board Info struct
 	 * and a permanent copy of the "global" data
 	 */
-	 addr_sp -= sizeof(bd_t);
-	 bd = (bd_t *)addr_sp;
-	 gd->bd = bd;
+	addr_sp -= sizeof(bd_t);
+	bd = (bd_t *)addr_sp;
+	gd->bd = bd;
 #ifdef DEBUG
-	 debug ("Reserving %d Bytes for Board Info at: %08lx\n",
-	 	sizeof(bd_t), addr_sp);
+	debug ("Reserving %d Bytes for Board Info at: %08lx\n",
+		sizeof(bd_t), addr_sp);
 #endif
-	 addr_sp -= sizeof(gd_t);
-	 id = (gd_t *)addr_sp;
+	addr_sp -= sizeof(gd_t);
+	id = (gd_t *)addr_sp;
 #ifdef DEBUG
-	 debug ("Reserving %d Bytes for Global Data at: %08lx\n",
-	 	sizeof (gd_t), addr_sp);
+	debug ("Reserving %d Bytes for Global Data at: %08lx\n",
+		sizeof (gd_t), addr_sp);
 #endif
  	/* Reserve memory for boot params.
 	 */
-	 addr_sp -= CFG_BOOTPARAMS_LEN;
-	 bd->bi_boot_params = addr_sp;
+	addr_sp -= CFG_BOOTPARAMS_LEN;
+	bd->bi_boot_params = addr_sp;
 #ifdef DEBUG
-	 debug ("Reserving %dk for boot params() at: %08lx\n",
-	 	CFG_BOOTPARAMS_LEN >> 10, addr_sp);
+	debug ("Reserving %dk for boot params() at: %08lx\n",
+		CFG_BOOTPARAMS_LEN >> 10, addr_sp);
 #endif
 	/*
 	 * Finally, we set up a new (bigger) stack.
@@ -794,15 +794,15 @@ void board_init_f(ulong bootflag)
 	 * Leave some safety gap for SP, force alignment on 16 byte boundary
 	 * Clear initial stack frame
 	 */
-	 addr_sp -= 16;
-	 addr_sp &= ~0xF;
-	 s = (ulong *)addr_sp;
-	 *s-- = 0;
-	 *s-- = 0;
-	 addr_sp = (ulong)s;
-	 
+	addr_sp -= 16;
+	addr_sp &= ~0xF;
+	s = (ulong *)addr_sp;
+	*s-- = 0;
+	*s-- = 0;
+	addr_sp = (ulong)s;
+
 #ifdef DEBUG
-	 debug ("Stack Pointer at: %08lx\n", addr_sp);
+	debug ("Stack Pointer at: %08lx\n", addr_sp);
 #endif
 
 	/*
@@ -812,13 +812,13 @@ void board_init_f(ulong bootflag)
 	bd->bi_memsize	= gd->ram_size;		/* size  of  DRAM memory in bytes */
 	bd->bi_baudrate	= gd->baudrate;		/* Console Baudrate */
 
-	 memcpy (id, (void *)gd, sizeof (gd_t));
+	memcpy (id, (void *)gd, sizeof (gd_t));
 
 	/* On the purple board we copy the code in a special way
 	 * in order to solve flash problems
 	 */
 #ifdef CONFIG_PURPLE
-	 copy_code(addr);
+	copy_code(addr);
 #endif
 
 
@@ -827,15 +827,15 @@ void board_init_f(ulong bootflag)
 	 * tricky: relocate code to original TEXT_BASE
 	 * for ICE souce level debuggind mode 
 	 */	
-	 debug ("relocate_code Pointer at: %08lx\n", addr);
+	debug ("relocate_code Pointer at: %08lx\n", addr);
 	relocate_code (addr_sp, id, /*TEXT_BASE*/ addr);	
 #else
-	 debug ("relocate_code Pointer at: %08lx\n", addr);
-	 relocate_code (addr_sp, id, addr);
+	debug ("relocate_code Pointer at: %08lx\n", addr);
+	relocate_code (addr_sp, id, addr);
 #endif
 
 	/* NOTREACHED - relocate_code() does not return */
-	}
+}
 
 #define SEL_LOAD_LINUX_WRITE_FLASH_BY_SERIAL 0
 #define SEL_LOAD_LINUX_SDRAM            1
@@ -847,135 +847,135 @@ void board_init_f(ulong bootflag)
 #define SEL_LOAD_BOOT_WRITE_FLASH       9
 #define SEL_LOAD_LINUX_WRITE_FLASH_DEFSET   5
 
-	void OperationSelect(void)
-	{
-		printf("\nPlease choose the operation: \n");
-		printf("   %d: Load system code to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
-		printf("   %d: Load system code then write to Flash via TFTP. \n", SEL_LOAD_LINUX_WRITE_FLASH);
-		printf("   %d: Boot system code via Flash (default).\n", SEL_BOOT_FLASH);
+void OperationSelect(void)
+{
+	printf("\nPlease choose the operation: \n");
+	printf("   %d: Load system code to SDRAM via TFTP. \n", SEL_LOAD_LINUX_SDRAM);
+	printf("   %d: Load system code then write to Flash via TFTP. \n", SEL_LOAD_LINUX_WRITE_FLASH);
+	printf("   %d: Boot system code via Flash (default).\n", SEL_BOOT_FLASH);
 #ifdef RALINK_CMDLINE
-		printf("   %d: Enter boot command line interface.\n", SEL_ENTER_CLI);
+	printf("   %d: Enter boot command line interface.\n", SEL_ENTER_CLI);
 #endif // RALINK_CMDLINE //
-		printf("   %d: Load system code then write to Flash via TFTP with DEFAULT SETTINGS. \n", SEL_LOAD_LINUX_WRITE_FLASH_DEFSET);
+	printf("   %d: Load system code then write to Flash via TFTP with DEFAULT SETTINGS. \n", SEL_LOAD_LINUX_WRITE_FLASH_DEFSET);
 #ifdef RALINK_UPGRADE_BY_SERIAL
-		printf("   %d: Load Boot Loader code then write to Flash via Serial. \n", SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL);
+	printf("   %d: Load Boot Loader code then write to Flash via Serial. \n", SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL);
 #endif // RALINK_UPGRADE_BY_SERIAL //
-		printf("   %d: Load Boot Loader code then write to Flash via TFTP. \n", SEL_LOAD_BOOT_WRITE_FLASH);
+	printf("   %d: Load Boot Loader code then write to Flash via TFTP. \n", SEL_LOAD_BOOT_WRITE_FLASH);
 
-	}
-	int tftp_config(int type, char *argv[])
-	{
-		char *s;
-		char default_file[ARGV_LEN], file[ARGV_LEN], devip[ARGV_LEN], srvip[ARGV_LEN], default_ip[ARGV_LEN];
-		int tftpramboot=0;
-		printf(" Please Input new ones /or Ctrl-C to discard\n");
+}
+int tftp_config(int type, char *argv[])
+{
+	char *s;
+	char default_file[ARGV_LEN], file[ARGV_LEN], devip[ARGV_LEN], srvip[ARGV_LEN], default_ip[ARGV_LEN];
+	int tftpramboot=0;
+	printf(" Please Input new ones /or Ctrl-C to discard\n");
 
-		memset(default_file, 0, ARGV_LEN);
-		memset(file, 0, ARGV_LEN);
-		memset(devip, 0, ARGV_LEN);
-		memset(srvip, 0, ARGV_LEN);
-		memset(default_ip, 0, ARGV_LEN);
+	memset(default_file, 0, ARGV_LEN);
+	memset(file, 0, ARGV_LEN);
+	memset(devip, 0, ARGV_LEN);
+	memset(srvip, 0, ARGV_LEN);
+	memset(default_ip, 0, ARGV_LEN);
 
-		printf("\tInput device IP ");
-		s = getenv("ipaddr");
-		memcpy(devip, s, strlen(s));
-		memcpy(default_ip, s, strlen(s));
+	printf("\tInput device IP ");
+	s = getenv("ipaddr");
+	memcpy(devip, s, strlen(s));
+	memcpy(default_ip, s, strlen(s));
 
-		printf("(%s) ", devip);
-		
-		s = getenv ("tftpramboot"); 
-		tftpramboot = (!s || (*s == '0')) ? 0 : 1;
-		if (tftpramboot == 1)
-			input_value(devip);
-		else
-			strcpy(devip,"10.10.10.123");
+	printf("(%s) ", devip);
 
-		setenv("ipaddr", devip);
-		if (strcmp(default_ip, devip) != 0)
-			modifies++;
+	s = getenv ("tftpramboot"); 
+	tftpramboot = (!s || (*s == '0')) ? 0 : 1;
+	if (tftpramboot == 1)
+		input_value(devip);
+	else
+		strcpy(devip,"10.10.10.123");
 
-		printf("\tInput server IP ");
-		s = getenv("serverip");
-		memcpy(srvip, s, strlen(s));
-		memset(default_ip, 0, ARGV_LEN);
-		memcpy(default_ip, s, strlen(s));
+	setenv("ipaddr", devip);
+	if (strcmp(default_ip, devip) != 0)
+		modifies++;
 
-		printf("(%s) ", srvip);
-		if (tftpramboot == 1)
-			input_value(srvip);
-		else
-			strcpy(srvip,"10.10.10.100");
-		setenv("serverip", srvip);
-		if (strcmp(default_ip, srvip) != 0)
-			modifies++;
+	printf("\tInput server IP ");
+	s = getenv("serverip");
+	memcpy(srvip, s, strlen(s));
+	memset(default_ip, 0, ARGV_LEN);
+	memcpy(default_ip, s, strlen(s));
 
-		if(type == SEL_LOAD_BOOT_SDRAM 
-			|| type == SEL_LOAD_BOOT_WRITE_FLASH 
+	printf("(%s) ", srvip);
+	if (tftpramboot == 1)
+		input_value(srvip);
+	else
+		strcpy(srvip,"10.10.10.100");
+	setenv("serverip", srvip);
+	if (strcmp(default_ip, srvip) != 0)
+		modifies++;
+
+	if(type == SEL_LOAD_BOOT_SDRAM 
+		|| type == SEL_LOAD_BOOT_WRITE_FLASH 
 #ifdef RALINK_UPGRADE_BY_SERIAL
-			|| type == SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL
+		|| type == SEL_LOAD_BOOT_WRITE_FLASH_BY_SERIAL
 #endif
-			) {
-			if(type == SEL_LOAD_BOOT_SDRAM)
+		) {
+		if(type == SEL_LOAD_BOOT_SDRAM)
 #if defined (RT2880_ASIC_BOARD) || defined (RT2880_FPGA_BOARD)
-				argv[1] = "0x8a200000";
+			argv[1] = "0x8a200000";
 #else
-			argv[1] = "0x80200000";
+		argv[1] = "0x80200000";
 #endif
-			else
-#if defined (RT2880_ASIC_BOARD) || defined (RT2880_FPGA_BOARD)
-				argv[1] = "0x8a100000";
-#else
-			argv[1] = "0x80100000";
-#endif
-			printf("\tInput Uboot filename ");
-		//argv[2] = "uboot.bin";
-			strncpy(argv[2], "uboot.bin", ARGV_LEN);
-		}
-		else if (type == SEL_LOAD_LINUX_WRITE_FLASH) {
+		else
 #if defined (RT2880_ASIC_BOARD) || defined (RT2880_FPGA_BOARD)
 			argv[1] = "0x8a100000";
 #else
-			argv[1] = "0x80100000";
+		argv[1] = "0x80100000";
 #endif
-			printf("\tInput Linux Kernel filename ");
+		printf("\tInput Uboot filename ");
+		//argv[2] = "uboot.bin";
+		strncpy(argv[2], "uboot.bin", ARGV_LEN);
+	}
+	else if (type == SEL_LOAD_LINUX_WRITE_FLASH) {
+#if defined (RT2880_ASIC_BOARD) || defined (RT2880_FPGA_BOARD)
+		argv[1] = "0x8a100000";
+#else
+		argv[1] = "0x80100000";
+#endif
+		printf("\tInput Linux Kernel filename ");
 		//argv[2] = "uImage"; winfred: use strncpy instead to prevent the buffer overflow at copy_filename later
-			strncpy(argv[2], "uImage", ARGV_LEN);
-		}
-		else if (type == SEL_LOAD_LINUX_SDRAM ) {
+		strncpy(argv[2], "uImage", ARGV_LEN);
+	}
+	else if (type == SEL_LOAD_LINUX_SDRAM ) {
 		/* bruce to support ramdisk */
 #if defined (RT2880_ASIC_BOARD) || defined (RT2880_FPGA_BOARD)
-			argv[1] = "0x8a800000";
+		argv[1] = "0x8a800000";
 #else
-			argv[1] = "0x80A00000";
+		argv[1] = "0x80A00000";
 #endif
-			printf("\tInput Linux Kernel filename ");
+		printf("\tInput Linux Kernel filename ");
 		//argv[2] = "uImage";
-			strncpy(argv[2], "uImage", ARGV_LEN);
-		}
-
-		s = getenv("bootfile");
-		if (s != NULL) {
-			memcpy(file, s, strlen(s));
-			memcpy(default_file, s, strlen(s));
-		}
-		printf("(%s) ", file);
-
-		if (tftpramboot == 1)
-			input_value(file);
-		else
-			strcpy(file,"prod.bin");
-		if (file == NULL)
-			return 1;
-		copy_filename (argv[2], file, sizeof(file));
-		setenv("bootfile", file);
-		if (strcmp(default_file, file) != 0)
-			modifies++;
-
-		return 0;
+		strncpy(argv[2], "uImage", ARGV_LEN);
 	}
 
-	void trigger_hw_reset(void)
-	{
+	s = getenv("bootfile");
+	if (s != NULL) {
+		memcpy(file, s, strlen(s));
+		memcpy(default_file, s, strlen(s));
+	}
+	printf("(%s) ", file);
+
+	if (tftpramboot == 1)
+		input_value(file);
+	else
+		strcpy(file,"prod.bin");
+	if (file == NULL)
+		return 1;
+	copy_filename (argv[2], file, sizeof(file));
+	setenv("bootfile", file);
+	if (strcmp(default_file, file) != 0)
+		modifies++;
+
+	return 0;
+}
+
+void trigger_hw_reset(void)
+{
 #ifdef GPIO14_RESET_MODE
         //set GPIO14 as output to trigger hw reset circuit
         RALINK_REG(RT2880_REG_PIODIR)|=1<<14; //output mode
@@ -992,273 +992,273 @@ void board_init_f(ulong bootflag)
  * dir=1: Image1 to Image2
  * dir=2: Image2 to Image1
  */
- int copy_image(int dir, unsigned long image_size) 
- {
- 	int ret = 0;
+    int copy_image(int dir, unsigned long image_size) 
+    {
+    	int ret = 0;
 #ifdef CFG_ENV_IS_IN_FLASH
- 	unsigned long e_end, len;
+    	unsigned long e_end, len;
 #endif
 
- 	if (dir == 1) {
+    	if (dir == 1) {
 #if defined (CFG_ENV_IS_IN_NAND)
- 		printf("\nCopy Image:\nImage1(0x%X) to Image2(0x%X), size=0x%X\n",
- 			CFG_KERN_ADDR - CFG_FLASH_BASE,
- 			CFG_KERN2_ADDR - CFG_FLASH_BASE, image_size);
- 		ranand_read((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, image_size);
- 		ret = ranand_erase_write((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN2_ADDR-CFG_FLASH_BASE, image_size);
+    		printf("\nCopy Image:\nImage1(0x%X) to Image2(0x%X), size=0x%X\n",
+    			CFG_KERN_ADDR - CFG_FLASH_BASE,
+    			CFG_KERN2_ADDR - CFG_FLASH_BASE, image_size);
+    		ranand_read((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, image_size);
+    		ret = ranand_erase_write((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN2_ADDR-CFG_FLASH_BASE, image_size);
 #elif defined (CFG_ENV_IS_IN_SPI)
- 		printf("\nCopy Image:\nImage1(0x%X) to Image2(0x%X), size=0x%X\n",
- 			CFG_KERN_ADDR - CFG_FLASH_BASE,
- 			CFG_KERN2_ADDR - CFG_FLASH_BASE, image_size);
- 		raspi_read((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, image_size);
- 		ret = raspi_erase_write((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN2_ADDR-CFG_FLASH_BASE, image_size);
+    		printf("\nCopy Image:\nImage1(0x%X) to Image2(0x%X), size=0x%X\n",
+    			CFG_KERN_ADDR - CFG_FLASH_BASE,
+    			CFG_KERN2_ADDR - CFG_FLASH_BASE, image_size);
+    		raspi_read((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, image_size);
+    		ret = raspi_erase_write((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN2_ADDR-CFG_FLASH_BASE, image_size);
 #else //CFG_ENV_IS_IN_FLASH
- 		printf("\nCopy Image:\nImage1(0x%X) to Image2(0x%X), size=0x%X\n", CFG_KERN_ADDR, CFG_KERN2_ADDR, image_size);
- 		e_end = CFG_KERN2_ADDR + image_size - 1;
- 		if (get_addr_boundary(&e_end) != 0)
- 			return -1;
- 		printf("Erase from 0x%X to 0x%X\n", CFG_KERN2_ADDR, e_end);
- 		flash_sect_erase(CFG_KERN2_ADDR, e_end);
- 		memcpy(CFG_LOAD_ADDR, (void *)CFG_KERN_ADDR, image_size);
- 		ret = flash_write((uchar *)CFG_LOAD_ADDR, (ulong)CFG_KERN2_ADDR, image_size);
+    		printf("\nCopy Image:\nImage1(0x%X) to Image2(0x%X), size=0x%X\n", CFG_KERN_ADDR, CFG_KERN2_ADDR, image_size);
+    		e_end = CFG_KERN2_ADDR + image_size - 1;
+    		if (get_addr_boundary(&e_end) != 0)
+    			return -1;
+    		printf("Erase from 0x%X to 0x%X\n", CFG_KERN2_ADDR, e_end);
+    		flash_sect_erase(CFG_KERN2_ADDR, e_end);
+    		memcpy(CFG_LOAD_ADDR, (void *)CFG_KERN_ADDR, image_size);
+    		ret = flash_write((uchar *)CFG_LOAD_ADDR, (ulong)CFG_KERN2_ADDR, image_size);
 #endif
- 	}
- 	else if (dir == 2) {
+    	}
+    	else if (dir == 2) {
 #if defined (CFG_ENV_IS_IN_NAND)
- 		printf("\nCopy Image:\nImage2(0x%X) to Image1(0x%X), size=0x%X\n",
- 			CFG_KERN2_ADDR - CFG_FLASH_BASE,
- 			CFG_KERN_ADDR - CFG_FLASH_BASE, image_size);
- 		ranand_read((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN2_ADDR-CFG_FLASH_BASE, image_size);
- 		ret = ranand_erase_write((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, image_size);
+    		printf("\nCopy Image:\nImage2(0x%X) to Image1(0x%X), size=0x%X\n",
+    			CFG_KERN2_ADDR - CFG_FLASH_BASE,
+    			CFG_KERN_ADDR - CFG_FLASH_BASE, image_size);
+    		ranand_read((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN2_ADDR-CFG_FLASH_BASE, image_size);
+    		ret = ranand_erase_write((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, image_size);
 #elif defined (CFG_ENV_IS_IN_SPI)
- 		printf("\nCopy Image:\nImage2(0x%X) to Image1(0x%X), size=0x%X\n",
- 			CFG_KERN2_ADDR - CFG_FLASH_BASE,
- 			CFG_KERN_ADDR - CFG_FLASH_BASE, image_size);
- 		raspi_read((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN2_ADDR-CFG_FLASH_BASE, image_size);
- 		ret = raspi_erase_write((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, image_size);
+    		printf("\nCopy Image:\nImage2(0x%X) to Image1(0x%X), size=0x%X\n",
+    			CFG_KERN2_ADDR - CFG_FLASH_BASE,
+    			CFG_KERN_ADDR - CFG_FLASH_BASE, image_size);
+    		raspi_read((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN2_ADDR-CFG_FLASH_BASE, image_size);
+    		ret = raspi_erase_write((char *)CFG_SPINAND_LOAD_ADDR, CFG_KERN_ADDR-CFG_FLASH_BASE, image_size);
 #else //CFG_ENV_IS_IN_FLASH
- 		printf("\nCopy Image:\nImage2(0x%X) to Image1(0x%X), size=0x%X\n", CFG_KERN2_ADDR, CFG_KERN_ADDR, image_size);
+    		printf("\nCopy Image:\nImage2(0x%X) to Image1(0x%X), size=0x%X\n", CFG_KERN2_ADDR, CFG_KERN_ADDR, image_size);
 #if defined (ON_BOARD_16M_FLASH_COMPONENT) && (defined (RT2880_ASIC_BOARD) || defined (RT2880_FPGA_BOARD) || defined (RT3052_MP1))
- 		len = 0x400000 - (CFG_BOOTLOADER_SIZE + CFG_CONFIG_SIZE + CFG_FACTORY_SIZE);
- 		if (image_size <= len) {
- 			e_end = CFG_KERN_ADDR + image_size - 1;
- 			if (get_addr_boundary(&e_end) != 0)
- 				return -1;
- 			printf("Erase from 0x%X To 0x%X\n", CFG_KERN_ADDR, e_end);
- 			flash_sect_erase(CFG_KERN_ADDR, e_end);
- 			memcpy(CFG_LOAD_ADDR, (void *)CFG_KERN2_ADDR, image_size);
- 			ret = flash_write((uchar *)CFG_LOAD_ADDR, (ulong)CFG_KERN_ADDR, image_size);
- 		}
- 		else {
- 			e_end = CFG_KERN_ADDR + len - 1;
- 			if (get_addr_boundary(&e_end - 1) != 0)
- 				return -1;
- 			printf("Erase from 0x%X To 0x%X\n", CFG_KERN_ADDR, e_end);
- 			flash_sect_erase(CFG_KERN_ADDR, e_end);
- 			e_end = PHYS_FLASH_2 + (image_size - len) - 1;
- 			if (get_addr_boundary(&e_end) != 0)
- 				return -1;
- 			printf("From 0x%X To 0x%X\n", PHYS_FLASH_2, e_end);
- 			flash_sect_erase(PHYS_FLASH_2, e_end);
- 			memcpy(CFG_LOAD_ADDR, (void *)CFG_KERN2_ADDR, image_size);
- 			ret = flash_write((uchar *)CFG_LOAD_ADDR, (ulong)CFG_KERN_ADDR, len);
- 			ret = flash_write((uchar *)(CFG_LOAD_ADDR + len), (ulong)PHYS_FLASH_2, image_size - len);
- 		}
+    		len = 0x400000 - (CFG_BOOTLOADER_SIZE + CFG_CONFIG_SIZE + CFG_FACTORY_SIZE);
+    		if (image_size <= len) {
+    			e_end = CFG_KERN_ADDR + image_size - 1;
+    			if (get_addr_boundary(&e_end) != 0)
+    				return -1;
+    			printf("Erase from 0x%X To 0x%X\n", CFG_KERN_ADDR, e_end);
+    			flash_sect_erase(CFG_KERN_ADDR, e_end);
+    			memcpy(CFG_LOAD_ADDR, (void *)CFG_KERN2_ADDR, image_size);
+    			ret = flash_write((uchar *)CFG_LOAD_ADDR, (ulong)CFG_KERN_ADDR, image_size);
+    		}
+    		else {
+    			e_end = CFG_KERN_ADDR + len - 1;
+    			if (get_addr_boundary(&e_end - 1) != 0)
+    				return -1;
+    			printf("Erase from 0x%X To 0x%X\n", CFG_KERN_ADDR, e_end);
+    			flash_sect_erase(CFG_KERN_ADDR, e_end);
+    			e_end = PHYS_FLASH_2 + (image_size - len) - 1;
+    			if (get_addr_boundary(&e_end) != 0)
+    				return -1;
+    			printf("From 0x%X To 0x%X\n", PHYS_FLASH_2, e_end);
+    			flash_sect_erase(PHYS_FLASH_2, e_end);
+    			memcpy(CFG_LOAD_ADDR, (void *)CFG_KERN2_ADDR, image_size);
+    			ret = flash_write((uchar *)CFG_LOAD_ADDR, (ulong)CFG_KERN_ADDR, len);
+    			ret = flash_write((uchar *)(CFG_LOAD_ADDR + len), (ulong)PHYS_FLASH_2, image_size - len);
+    		}
 #else
- 		e_end = CFG_KERN_ADDR + image_size - 1;
- 		if (get_addr_boundary(&e_end) != 0)
- 			return -1;
- 		printf("Erase from 0x%X to 0x%X\n", CFG_KERN_ADDR, e_end);
- 		flash_sect_erase(CFG_KERN_ADDR, e_end);
- 		memcpy(CFG_LOAD_ADDR, (void *)CFG_KERN2_ADDR, image_size);
- 		ret = flash_write((uchar *)CFG_LOAD_ADDR, (ulong)CFG_KERN_ADDR, image_size);
+    		e_end = CFG_KERN_ADDR + image_size - 1;
+    		if (get_addr_boundary(&e_end) != 0)
+    			return -1;
+    		printf("Erase from 0x%X to 0x%X\n", CFG_KERN_ADDR, e_end);
+    		flash_sect_erase(CFG_KERN_ADDR, e_end);
+    		memcpy(CFG_LOAD_ADDR, (void *)CFG_KERN2_ADDR, image_size);
+    		ret = flash_write((uchar *)CFG_LOAD_ADDR, (ulong)CFG_KERN_ADDR, image_size);
 #endif
 #endif
- 		if (ret == 0) {
- 			setenv("Image1Stable", "0");
- 			setenv("Image1Try", "0");
- 			saveenv();
- 		}
- 	}
- 	else
- 		ret = -1;
+    		if (ret == 0) {
+    			setenv("Image1Stable", "0");
+    			setenv("Image1Try", "0");
+    			saveenv();
+    		}
+    	}
+    	else
+    		ret = -1;
 
- 	return ret;
+    	return ret;
 
- }
+    }
 
- int debug_mode(void)
- {
- 	printf("Upgrade Mode~~\n");
+    int debug_mode(void)
+    {
+    	printf("Upgrade Mode~~\n");
 
- 	return 0;
- }
+    	return 0;
+    }
 
 #define MAX_TRY_TIMES 3
- int check_image_validation(void)
- {
- 	int ret = 0;
- 	int broken1 = 0, broken2 = 0;
- 	unsigned long len = 0, chksum = 0;
- 	image_header_t hdr1, hdr2;
- 	unsigned char *hdr1_addr, *hdr2_addr;
- 	char *stable, *try;
+    int check_image_validation(void)
+    {
+    	int ret = 0;
+    	int broken1 = 0, broken2 = 0;
+    	unsigned long len = 0, chksum = 0;
+    	image_header_t hdr1, hdr2;
+    	unsigned char *hdr1_addr, *hdr2_addr;
+    	char *stable, *try;
 
- 	hdr1_addr = (unsigned char *)CFG_KERN_ADDR;
- 	hdr2_addr = (unsigned char *)CFG_KERN2_ADDR;
+    	hdr1_addr = (unsigned char *)CFG_KERN_ADDR;
+    	hdr2_addr = (unsigned char *)CFG_KERN2_ADDR;
 
 #if defined (CFG_ENV_IS_IN_NAND)
- 	ranand_read((char *)&hdr1, (unsigned int)hdr1_addr - CFG_FLASH_BASE, sizeof(image_header_t));
- 	ranand_read(char *)(&hdr2, (unsigned int)hdr2_addr - CFG_FLASH_BASE, sizeof(image_header_t));
+    	ranand_read((char *)&hdr1, (unsigned int)hdr1_addr - CFG_FLASH_BASE, sizeof(image_header_t));
+    	ranand_read(char *)(&hdr2, (unsigned int)hdr2_addr - CFG_FLASH_BASE, sizeof(image_header_t));
 #elif defined (CFG_ENV_IS_IN_SPI)
- 	raspi_read((char *)&hdr1, (unsigned int)hdr1_addr - CFG_FLASH_BASE, sizeof(image_header_t));
- 	raspi_read((char *)&hdr2, (unsigned int)hdr2_addr - CFG_FLASH_BASE, sizeof(image_header_t));
+    	raspi_read((char *)&hdr1, (unsigned int)hdr1_addr - CFG_FLASH_BASE, sizeof(image_header_t));
+    	raspi_read((char *)&hdr2, (unsigned int)hdr2_addr - CFG_FLASH_BASE, sizeof(image_header_t));
 #else //CFG_ENV_IS_IN_FLASH
- 	memmove(&hdr1, (char *)hdr1_addr, sizeof(image_header_t));
- 	memmove(&hdr2, (char *)hdr2_addr, sizeof(image_header_t));
+    	memmove(&hdr1, (char *)hdr1_addr, sizeof(image_header_t));
+    	memmove(&hdr2, (char *)hdr2_addr, sizeof(image_header_t));
 #endif
 
- 	printf("\n=================================================\n");
- 	printf("Check image validation:\n");
+    	printf("\n=================================================\n");
+    	printf("Check image validation:\n");
 
 	/* Check header magic number */
- 	printf ("Image1 Header Magic Number --> ");
- 	if (ntohl(hdr1.ih_magic) != IH_MAGIC) {
- 		broken1 = 1;
- 		printf("Failed\n");
- 	}
- 	else
- 		printf("OK\n");
+    	printf ("Image1 Header Magic Number --> ");
+    	if (ntohl(hdr1.ih_magic) != IH_MAGIC) {
+    		broken1 = 1;
+    		printf("Failed\n");
+    	}
+    	else
+    		printf("OK\n");
 
- 	printf ("Image2 Header Magic Number --> ");
- 	if (ntohl(hdr2.ih_magic) != IH_MAGIC) {
- 		broken2 = 1;
- 		printf("Failed\n");
- 	}
- 	else
- 		printf("OK\n");
+    	printf ("Image2 Header Magic Number --> ");
+    	if (ntohl(hdr2.ih_magic) != IH_MAGIC) {
+    		broken2 = 1;
+    		printf("Failed\n");
+    	}
+    	else
+    		printf("OK\n");
 
 	/* Check header crc */
 	/* Skip crc checking if there is no valid header, or it may hang on due to broken header length */
- 	if (broken1 == 0) {
- 		printf("Image1 Header Checksum --> ");
- 		len  = sizeof(image_header_t);
- 		chksum = ntohl(hdr1.ih_hcrc);
- 		hdr1.ih_hcrc = 0;
- 		if (crc32(0, (char *)&hdr1, len) != chksum) {
- 			broken1 = 1;
- 			printf("Failed\n");
- 		}
- 		else
- 			printf("OK\n");
- 	}
+    	if (broken1 == 0) {
+    		printf("Image1 Header Checksum --> ");
+    		len  = sizeof(image_header_t);
+    		chksum = ntohl(hdr1.ih_hcrc);
+    		hdr1.ih_hcrc = 0;
+    		if (crc32(0, (char *)&hdr1, len) != chksum) {
+    			broken1 = 1;
+    			printf("Failed\n");
+    		}
+    		else
+    			printf("OK\n");
+    	}
 
- 	if (broken2 == 0) {
- 		printf("Image2 Header Checksum --> ");
- 		len  = sizeof(image_header_t);
- 		chksum = ntohl(hdr2.ih_hcrc);
- 		hdr2.ih_hcrc = 0;
- 		if (crc32(0, (char *)&hdr2, len) != chksum) {
- 			printf("Failed\n");
- 			broken2 = 1;
- 		}
- 		else
- 			printf("OK\n");
- 	}
+    	if (broken2 == 0) {
+    		printf("Image2 Header Checksum --> ");
+    		len  = sizeof(image_header_t);
+    		chksum = ntohl(hdr2.ih_hcrc);
+    		hdr2.ih_hcrc = 0;
+    		if (crc32(0, (char *)&hdr2, len) != chksum) {
+    			printf("Failed\n");
+    			broken2 = 1;
+    		}
+    		else
+    			printf("OK\n");
+    	}
 
 	/* Check data crc */
 	/* Skip crc checking if there is no valid header, or it may hang on due to broken data length */
- 	if (broken1 == 0) {
- 		printf("Image1 Data Checksum --> ");
- 		len = ntohl(hdr1.ih_size);
- 		chksum = ntohl(hdr1.ih_dcrc);
+    	if (broken1 == 0) {
+    		printf("Image1 Data Checksum --> ");
+    		len = ntohl(hdr1.ih_size);
+    		chksum = ntohl(hdr1.ih_dcrc);
 #if defined (CFG_ENV_IS_IN_NAND)
- 		ranand_read((char *)CFG_SPINAND_LOAD_ADDR,
- 			(unsigned int)hdr1_addr - CFG_FLASH_BASE + sizeof(image_header_t),
- 			len);
- 		if (crc32(0, (char *)CFG_SPINAND_LOAD_ADDR, len) != chksum)
+    		ranand_read((char *)CFG_SPINAND_LOAD_ADDR,
+    			(unsigned int)hdr1_addr - CFG_FLASH_BASE + sizeof(image_header_t),
+    			len);
+    		if (crc32(0, (char *)CFG_SPINAND_LOAD_ADDR, len) != chksum)
 #elif defined (CFG_ENV_IS_IN_SPI)
- 			raspi_read((char *)CFG_SPINAND_LOAD_ADDR,
- 				(unsigned int)hdr1_addr - CFG_FLASH_BASE + sizeof(image_header_t),
- 				len);
- 		if (crc32(0, (char *)CFG_SPINAND_LOAD_ADDR, len) != chksum)
+    			raspi_read((char *)CFG_SPINAND_LOAD_ADDR,
+    				(unsigned int)hdr1_addr - CFG_FLASH_BASE + sizeof(image_header_t),
+    				len);
+    		if (crc32(0, (char *)CFG_SPINAND_LOAD_ADDR, len) != chksum)
 #else //CFG_ENV_IS_IN_FLASH
- 			if (crc32(0, (char *)(hdr1_addr + sizeof(image_header_t)), len) != chksum)
+    			if (crc32(0, (char *)(hdr1_addr + sizeof(image_header_t)), len) != chksum)
 #endif
- 			{
- 				broken1 = 1;
- 				printf("Failed\n");
- 			}
- 			else
- 				printf("OK\n");
- 		}
+    			{
+    				broken1 = 1;
+    				printf("Failed\n");
+    			}
+    			else
+    				printf("OK\n");
+    		}
 
- 		if (broken2 == 0) {
- 			printf("Image2 Data Checksum --> ");
- 			len  = ntohl(hdr2.ih_size);
- 			chksum = ntohl(hdr2.ih_dcrc);
+    		if (broken2 == 0) {
+    			printf("Image2 Data Checksum --> ");
+    			len  = ntohl(hdr2.ih_size);
+    			chksum = ntohl(hdr2.ih_dcrc);
 #if defined (CFG_ENV_IS_IN_NAND)
- 			ranand_read((char *)CFG_SPINAND_LOAD_ADDR,
- 				(unsigned int)hdr2_addr - CFG_FLASH_BASE + sizeof(image_header_t),
- 				len);
- 			if (crc32(0, (char *)CFG_SPINAND_LOAD_ADDR, len) != chksum)
+    			ranand_read((char *)CFG_SPINAND_LOAD_ADDR,
+    				(unsigned int)hdr2_addr - CFG_FLASH_BASE + sizeof(image_header_t),
+    				len);
+    			if (crc32(0, (char *)CFG_SPINAND_LOAD_ADDR, len) != chksum)
 #elif defined (CFG_ENV_IS_IN_SPI)
- 				raspi_read((char *)CFG_SPINAND_LOAD_ADDR,
- 					(unsigned int)hdr2_addr - CFG_FLASH_BASE + sizeof(image_header_t),
- 					len);
- 			if (crc32(0, (char *)CFG_SPINAND_LOAD_ADDR, len) != chksum)
+    				raspi_read((char *)CFG_SPINAND_LOAD_ADDR,
+    					(unsigned int)hdr2_addr - CFG_FLASH_BASE + sizeof(image_header_t),
+    					len);
+    			if (crc32(0, (char *)CFG_SPINAND_LOAD_ADDR, len) != chksum)
 #else //CFG_ENV_IS_IN_FLASH
- 				if (crc32(0, (char *)(hdr2_addr + sizeof(image_header_t)), len) != chksum)
+    				if (crc32(0, (char *)(hdr2_addr + sizeof(image_header_t)), len) != chksum)
 #endif
- 				{
- 					broken2 = 1;
- 					printf("Failed\n");
- 				}
- 				else
- 					printf("OK\n");
- 			}
+    				{
+    					broken2 = 1;
+    					printf("Failed\n");
+    				}
+    				else
+    					printf("OK\n");
+    			}
 
 	/* Check stable flag and try counter */
- 			stable = getenv("Image1Stable");
- 			printf("Image1 Stable Flag --> %s\n", !strcmp(stable, "1") ? "Stable" : "Not stable");
- 			try = getenv("Image1Try");
- 			printf("Image1 Try Counter --> %s\n", (try == NULL) ? "0" : try);
- 			if ((strcmp(stable, "1") != 0) && (simple_strtoul(try, NULL, 10)) > MAX_TRY_TIMES 
- 				&& (broken1 == 0)) {
- 				printf("\nImage1 is not stable and try counter > %X. Take it as a broken image.", MAX_TRY_TIMES);
- 			broken1 = 1;
- 		}
+    			stable = getenv("Image1Stable");
+    			printf("Image1 Stable Flag --> %s\n", !strcmp(stable, "1") ? "Stable" : "Not stable");
+    			try = getenv("Image1Try");
+    			printf("Image1 Try Counter --> %s\n", (try == NULL) ? "0" : try);
+    			if ((strcmp(stable, "1") != 0) && (simple_strtoul(try, NULL, 10)) > MAX_TRY_TIMES 
+    				&& (broken1 == 0)) {
+    				printf("\nImage1 is not stable and try counter > %X. Take it as a broken image.", MAX_TRY_TIMES);
+    			broken1 = 1;
+    		}
 
- 		printf("\nImage1: %s Image2: %s\n", broken1 ? "Broken" : "OK", broken2 ? "Broken" : "OK");
- 		if (broken1 == 1 && broken2 == 0) {
- 			len = ntohl(hdr2.ih_size) + sizeof(image_header_t);
- 			if (len > CFG_KERN_SIZE)
- 				printf("\nImage1 is broken, but Image2 size(0x%X) is too big(limit=0x%X)!!\
- 					\nGive up copying image.\n", len, CFG_KERN_SIZE);
- 			else {
- 				printf("Image1 is borken. Copy Image2 to Image1\n");
- 				copy_image(2, len);
- 			}
- 		}
- 		else if (broken1 == 0 && broken2 == 1) {
- 			len = ntohl(hdr1.ih_size) + sizeof(image_header_t);
- 			if (len > CFG_KERN2_SIZE)
- 				printf("\nImage2 is broken, but Image1 size(0x%X) is too big(limit=0x%X)!!\
- 					\nGive up copying image.\n", len, CFG_KERN2_SIZE);
- 			else {
- 				printf("\nImage2 is borken. Copy Image1 to Image2.\n");
- 				copy_image(1, len);
- 			}
- 		}
- 		else if (broken1 == 1 && broken2 == 1)
- 			debug_mode();
- 		else
- 			ret = -1;
+    		printf("\nImage1: %s Image2: %s\n", broken1 ? "Broken" : "OK", broken2 ? "Broken" : "OK");
+    		if (broken1 == 1 && broken2 == 0) {
+    			len = ntohl(hdr2.ih_size) + sizeof(image_header_t);
+    			if (len > CFG_KERN_SIZE)
+    				printf("\nImage1 is broken, but Image2 size(0x%X) is too big(limit=0x%X)!!\
+    					\nGive up copying image.\n", len, CFG_KERN_SIZE);
+    			else {
+    				printf("Image1 is borken. Copy Image2 to Image1\n");
+    				copy_image(2, len);
+    			}
+    		}
+    		else if (broken1 == 0 && broken2 == 1) {
+    			len = ntohl(hdr1.ih_size) + sizeof(image_header_t);
+    			if (len > CFG_KERN2_SIZE)
+    				printf("\nImage2 is broken, but Image1 size(0x%X) is too big(limit=0x%X)!!\
+    					\nGive up copying image.\n", len, CFG_KERN2_SIZE);
+    			else {
+    				printf("\nImage2 is borken. Copy Image1 to Image2.\n");
+    				copy_image(1, len);
+    			}
+    		}
+    		else if (broken1 == 1 && broken2 == 1)
+    			debug_mode();
+    		else
+    			ret = -1;
 
- 		printf("\n=================================================\n");
+    		printf("\n=================================================\n");
 
- 		return ret;
- 	}
+    		return ret;
+    	}
 #endif
 
 
@@ -1272,37 +1272,37 @@ void board_init_f(ulong bootflag)
  ************************************************************************
  */
 
- gd_t gd_data;
- 
- void board_init_r (gd_t *id, ulong dest_addr)
- {
- 	cmd_tbl_t *cmdtp;
- 	ulong size;
- 	extern void malloc_bin_reloc (void);
+    	gd_t gd_data;
+
+    	void board_init_r (gd_t *id, ulong dest_addr)
+    	{
+    		cmd_tbl_t *cmdtp;
+    		ulong size;
+    		extern void malloc_bin_reloc (void);
 #ifndef CFG_ENV_IS_NOWHERE
- 	extern char * env_name_spec;
+    		extern char * env_name_spec;
 #endif
- 	char *s, *e;
- 	bd_t *bd;
- 	int i;
- 	int timer1= CONFIG_BOOTDELAY,tftpramboot=1;
- 	unsigned char BootType='3', confirm=0;
- 	int my_tmp;
- 	char addr_str[11];
+    		char *s, *e;
+    		bd_t *bd;
+    		int i;
+    		int timer1= CONFIG_BOOTDELAY,tftpramboot=1;
+    		unsigned char BootType='3', confirm=0;
+    		int my_tmp;
+    		char addr_str[11];
 #if defined (CFG_ENV_IS_IN_FLASH)
- 	ulong e_end;
+    		ulong e_end;
 #endif
 
 #if defined (RT2880_FPGA_BOARD) || defined (RT2880_ASIC_BOARD)
- 	u32 value,kk;
+    		u32 value,kk;
 
- 	memcpy(&gd_data, (void *)gd, sizeof(gd_t));
- 	gd = &gd_data;
+    		memcpy(&gd_data, (void *)gd, sizeof(gd_t));
+    		gd = &gd_data;
 #else
- 	u32 config1,lsize,icache_linesz,icache_sets,icache_ways,icache_size;
- 	u32 dcache_linesz,dcache_sets,dcache_ways,dcache_size;
+    		u32 config1,lsize,icache_linesz,icache_sets,icache_ways,icache_size;
+    		u32 dcache_linesz,dcache_sets,dcache_ways,dcache_size;
 
- 	memcpy((void *)(CFG_SDRAM_BASE + DRAM_SIZE*0x100000 - 0x10000), (void *)gd, sizeof(gd_t));
+    		memcpy((void *)(CFG_SDRAM_BASE + DRAM_SIZE*0x100000 - 0x10000), (void *)gd, sizeof(gd_t));
 	gd = (gd_t *)(CFG_SDRAM_BASE + DRAM_SIZE*0x100000- 0x10000);//&gd_data;
 #endif
 
@@ -1387,15 +1387,15 @@ void board_init_f(ulong bootflag)
 		printf("***********************\n");
 		RALINK_REG(RT2880_RSTSTAT_REG)|=RT2880_WDRST;
 		RALINK_REG(RT2880_RSTSTAT_REG)&=~RT2880_WDRST;
-        bootcause=1;
+		bootcause=1;
 		trigger_hw_reset();
-    }else if(reg & RT2880_SWSYSRST){
+	}else if(reg & RT2880_SWSYSRST){
 		printf("******************************\n");
 		printf("Software System Reset Occurred\n");
 		printf("******************************\n");
 		RALINK_REG(RT2880_RSTSTAT_REG)|=RT2880_SWSYSRST;
 		RALINK_REG(RT2880_RSTSTAT_REG)&=~RT2880_SWSYSRST;
-        bootcause=2;
+		bootcause=2;
 		trigger_hw_reset();
 	}else if (reg & RT2880_SWCPURST){
 		printf("***************************\n");
@@ -1403,7 +1403,7 @@ void board_init_f(ulong bootflag)
 		printf("***************************\n");
 		RALINK_REG(RT2880_RSTSTAT_REG)|=RT2880_SWCPURST;
 		RALINK_REG(RT2880_RSTSTAT_REG)&=~RT2880_SWCPURST;
-        bootcause=3;
+		bootcause=3;
 		trigger_hw_reset();
 	}
 
@@ -1419,221 +1419,221 @@ void board_init_f(ulong bootflag)
 	/*
 	 * We have to relocate the command table manually
 	 */
-	 for (cmdtp = &__u_boot_cmd_start; cmdtp !=  &__u_boot_cmd_end; cmdtp++) {
-	 	ulong addr;
+	for (cmdtp = &__u_boot_cmd_start; cmdtp !=  &__u_boot_cmd_end; cmdtp++) {
+		ulong addr;
 
-	 	addr = (ulong) (cmdtp->cmd) + gd->reloc_off;
+		addr = (ulong) (cmdtp->cmd) + gd->reloc_off;
 #ifdef DEBUG
-	 	printf ("Command \"%s\": 0x%08lx => 0x%08lx\n",
-	 		cmdtp->name, (ulong) (cmdtp->cmd), addr);
+		printf ("Command \"%s\": 0x%08lx => 0x%08lx\n",
+			cmdtp->name, (ulong) (cmdtp->cmd), addr);
 #endif
-	 	cmdtp->cmd =
-	 	(int (*)(struct cmd_tbl_s *, int, int, char *[]))addr;
+		cmdtp->cmd =
+		(int (*)(struct cmd_tbl_s *, int, int, char *[]))addr;
 
-	 	addr = (ulong)(cmdtp->name) + gd->reloc_off;
-	 	cmdtp->name = (char *)addr;
+		addr = (ulong)(cmdtp->name) + gd->reloc_off;
+		cmdtp->name = (char *)addr;
 
-	 	if (cmdtp->usage) {
-	 		addr = (ulong)(cmdtp->usage) + gd->reloc_off;
-	 		cmdtp->usage = (char *)addr;
-	 	}
+		if (cmdtp->usage) {
+			addr = (ulong)(cmdtp->usage) + gd->reloc_off;
+			cmdtp->usage = (char *)addr;
+		}
 #ifdef	CFG_LONGHELP
-	 	if (cmdtp->help) {
-	 		addr = (ulong)(cmdtp->help) + gd->reloc_off;
-	 		cmdtp->help = (char *)addr;
-	 	}
+		if (cmdtp->help) {
+			addr = (ulong)(cmdtp->help) + gd->reloc_off;
+			cmdtp->help = (char *)addr;
+		}
 #endif
 
-	 }
+	}
 	/* there are some other pointer constants we must deal with */
 #ifndef CFG_ENV_IS_NOWHERE
-	 env_name_spec += gd->reloc_off;
+	env_name_spec += gd->reloc_off;
 #endif
 
-	 bd = gd->bd;
+	bd = gd->bd;
 #if defined (CFG_ENV_IS_IN_NAND)
 #if defined (MT7621_ASIC_BOARD) || defined (MT7621_FPGA_BOARD)
-	 if ((size = mtk_nand_probe()) != (ulong)0) {
-	 	printf("nand probe fail\n");
-	 	while(1);
-	 }
+	if ((size = mtk_nand_probe()) != (ulong)0) {
+		printf("nand probe fail\n");
+		while(1);
+	}
 #else
-	 if ((size = ranand_init()) == (ulong)-1) {
-	 	printf("ra_nand_init fail\n");
-	 	while(1);
-	 }
+	if ((size = ranand_init()) == (ulong)-1) {
+		printf("ra_nand_init fail\n");
+		while(1);
+	}
 #endif	
-	 bd->bi_flashstart = 0;
-	 bd->bi_flashsize = size;
-	 bd->bi_flashoffset = 0;
+	bd->bi_flashstart = 0;
+	bd->bi_flashsize = size;
+	bd->bi_flashoffset = 0;
 #elif defined (CFG_ENV_IS_IN_SPI)
-	 if ((size = raspi_init()) == (ulong)-1) {
-	 	printf("ra_spi_init fail\n");
-	 	while(1);
-	 }
-	 bd->bi_flashstart = 0;
-	 bd->bi_flashsize = size;
-	 bd->bi_flashoffset = 0;
+	if ((size = raspi_init()) == (ulong)-1) {
+		printf("ra_spi_init fail\n");
+		while(1);
+	}
+	bd->bi_flashstart = 0;
+	bd->bi_flashsize = size;
+	bd->bi_flashoffset = 0;
 #else //CFG_ENV_IS_IN_FLASH
 	/* configure available FLASH banks */
-	 size = flash_init();
+	size = flash_init();
 
-	 bd->bi_flashstart = CFG_FLASH_BASE;
-	 bd->bi_flashsize = size;
+	bd->bi_flashstart = CFG_FLASH_BASE;
+	bd->bi_flashsize = size;
 #if CFG_MONITOR_BASE == CFG_FLASH_BASE
 	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for U-Boot */
 #else
-	 bd->bi_flashoffset = 0;
+	bd->bi_flashoffset = 0;
 #endif
 #endif //CFG_ENV_IS_IN_FLASH
 
 	/* initialize malloc() area */
-	 mem_malloc_init();
-	 malloc_bin_reloc();
+	mem_malloc_init();
+	malloc_bin_reloc();
 
 #if defined (CFG_ENV_IS_IN_NAND)
-	 nand_env_init();
+	nand_env_init();
 #elif defined (CFG_ENV_IS_IN_SPI)
-	 spi_env_init();
+	spi_env_init();
 #else //CFG_ENV_IS_IN_FLASH
 #endif //CFG_ENV_IS_IN_FLASH
 
 #if defined(RT3052_ASIC_BOARD)
-	 void adjust_frequency(void);
+	void adjust_frequency(void);
 	//adjust_frequency();
 #endif
 #if defined (RT3352_ASIC_BOARD)
-	 void adjust_crystal_circuit(void);
-	 adjust_crystal_circuit();
+	void adjust_crystal_circuit(void);
+	adjust_crystal_circuit();
 #endif
 #if defined (RT3352_ASIC_BOARD) || defined (RT3883_ASIC_BOARD)
-	 void adjust_rf_r17(void);
-	 adjust_rf_r17();
+	void adjust_rf_r17(void);
+	adjust_rf_r17();
 #endif
 
 	/* relocate environment function pointers etc. */
-	 env_relocate();
+	env_relocate();
 
 	/* board MAC address */
-	 s = getenv ("ethaddr");
-	 for (i = 0; i < 6; ++i) {
-	 	bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
-	 	if (s)
-	 		s = (*e) ? e + 1 : e;
-	 }
+	s = getenv ("ethaddr");
+	for (i = 0; i < 6; ++i) {
+		bd->bi_enetaddr[i] = s ? simple_strtoul (s, &e, 16) : 0;
+		if (s)
+			s = (*e) ? e + 1 : e;
+	}
 
 	/* IP Address */
-	 bd->bi_ip_addr = getenv_IPaddr("ipaddr");
+	bd->bi_ip_addr = getenv_IPaddr("ipaddr");
 
 #if defined(CONFIG_PCI)
 	/*
 	 * Do pci configuration
 	 */
-	 puts("\n  Do pci configuration  !!\n");
-	 pci_init();
+	puts("\n  Do pci configuration  !!\n");
+	pci_init();
 #endif
 
 	/** leave this here (after malloc(), environment and PCI are working) **/
 	/* Initialize devices */
-	 devices_init ();
+	devices_init ();
 
-	 jumptable_init ();
+	jumptable_init ();
 
 	/* Initialize the console (after the relocation and devices init) */
-	 console_init_r ();
+	console_init_r ();
 
 	/* Initialize from environment */
-	 if ((s = getenv ("loadaddr")) != NULL) {
-	 	load_addr = simple_strtoul (s, NULL, 16);
-	 }
+	if ((s = getenv ("loadaddr")) != NULL) {
+		load_addr = simple_strtoul (s, NULL, 16);
+	}
 #if (CONFIG_COMMANDS & CFG_CMD_NET)
-	 if ((s = getenv ("bootfile")) != NULL) {
-	 	copy_filename (BootFile, s, sizeof (BootFile));
-	 }
+	if ((s = getenv ("bootfile")) != NULL) {
+		copy_filename (BootFile, s, sizeof (BootFile));
+	}
 #endif	/* CFG_CMD_NET */
 
 #if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */
-	 misc_init_r ();
+	misc_init_r ();
 #endif
 
 	/* RT2880 Boot Loader Menu */
 #if defined(RT3352_FPGA_BOARD) || defined (RT3352_ASIC_BOARD) || \
-	 defined(RT3883_FPGA_BOARD) || defined (RT3883_ASIC_BOARD) || \
-	 defined(RT5350_FPGA_BOARD) || defined (RT5350_ASIC_BOARD) 
+	defined(RT3883_FPGA_BOARD) || defined (RT3883_ASIC_BOARD) || \
+	defined(RT5350_FPGA_BOARD) || defined (RT5350_ASIC_BOARD) 
 
 #if defined(CFG_ENV_IS_IN_SPI) || defined (CFG_ENV_IS_IN_NAND)
-	 {
-	 	int reg, boot_from_eeprom=0;
-	 	reg = RALINK_REG(RT2880_SYSCFG_REG);
+	{
+		int reg, boot_from_eeprom=0;
+		reg = RALINK_REG(RT2880_SYSCFG_REG);
 		/* Uboot Version and Configuration*/
-	 	printf("============================================ \n");
-	 	printf("Ralink UBoot Version: %s\n", RALINK_LOCAL_VERSION);
-	 	printf("-------------------------------------------- \n");
-	 	printf("%s %s %s\n",CHIP_TYPE, CHIP_VERSION, GMAC_MODE);
-	 	boot_from_eeprom = ((reg>>18) & 0x01);
-	 	if(boot_from_eeprom){
-	 		printf("DRAM_CONF_FROM: EEPROM \n");
-	 		printf("DRAM_SIZE: %d Mbits %s\n", DRAM_COMPONENT, DDR_INFO);
-	 		printf("DRAM_TOTAL_WIDTH: %d bits\n", DRAM_BUS );
-	 		printf("TOTAL_MEMORY_SIZE: %d MBytes\n", DRAM_SIZE);
-	 	}else{
-	 		int dram_width, is_ddr2, dram_total_width, total_size;
-	 		int _x = ((reg >> 12) & 0x7); 
+		printf("============================================ \n");
+		printf("Ralink UBoot Version: %s\n", RALINK_LOCAL_VERSION);
+		printf("-------------------------------------------- \n");
+		printf("%s %s %s\n",CHIP_TYPE, CHIP_VERSION, GMAC_MODE);
+		boot_from_eeprom = ((reg>>18) & 0x01);
+		if(boot_from_eeprom){
+			printf("DRAM_CONF_FROM: EEPROM \n");
+			printf("DRAM_SIZE: %d Mbits %s\n", DRAM_COMPONENT, DDR_INFO);
+			printf("DRAM_TOTAL_WIDTH: %d bits\n", DRAM_BUS );
+			printf("TOTAL_MEMORY_SIZE: %d MBytes\n", DRAM_SIZE);
+		}else{
+			int dram_width, is_ddr2, dram_total_width, total_size;
+			int _x = ((reg >> 12) & 0x7); 
 
 #if defined(RT3352_FPGA_BOARD) || defined (RT3352_ASIC_BOARD)
-	 		int dram_size = (_x == 6)? 2048 : (_x == 5)? 1024 : (_x == 4)? 512 : (_x == 3)? 256 : (_x == 2)? 128 : \
-	 		(_x == 1)? 64 : (_x == 0)? 16 : 0; 
+			int dram_size = (_x == 6)? 2048 : (_x == 5)? 1024 : (_x == 4)? 512 : (_x == 3)? 256 : (_x == 2)? 128 : \
+			(_x == 1)? 64 : (_x == 0)? 16 : 0; 
 #elif defined (RT5350_FPGA_BOARD) || defined (RT5350_ASIC_BOARD)
-	 		int dram_size = (_x == 4)? 512 : (_x == 3)? 256 : (_x == 2)? 128 : \
-	 		(_x == 1)? 64 : (_x == 0)? 16 : 0; 
+			int dram_size = (_x == 4)? 512 : (_x == 3)? 256 : (_x == 2)? 128 : \
+			(_x == 1)? 64 : (_x == 0)? 16 : 0; 
 #elif defined (RT3883_FPGA_BOARD) || defined (RT3883_ASIC_BOARD)
-	 		int dram_size = (_x == 6)? 2048 : (_x == 5)? 1024 : (_x == 4)? 512 : \
-	 		(_x == 3)? 256 : (_x == 2)? 128 : (_x == 1)? 64 : \
-	 		(_x == 0)? 16 : 0; 
+			int dram_size = (_x == 6)? 2048 : (_x == 5)? 1024 : (_x == 4)? 512 : \
+			(_x == 3)? 256 : (_x == 2)? 128 : (_x == 1)? 64 : \
+			(_x == 0)? 16 : 0; 
 #endif
-	 		if(((reg >> 15) & 0x1)){
-	 			dram_total_width = 32;
-	 		}else{
-	 			dram_total_width = 16;
-	 		}
+			if(((reg >> 15) & 0x1)){
+				dram_total_width = 32;
+			}else{
+				dram_total_width = 16;
+			}
 
-	 		is_ddr2 = ((reg >> 17) & 0x1);
-	 		if(is_ddr2){
-	 			if((reg >> 10) & 0x1){
-	 				dram_width = 16;
-	 			}else{
-	 				dram_width = 8;
-	 			}
-	 		}else{
-	 			if((reg >> 10) & 0x1){
-	 				dram_width = 32;
-	 			}else{
-	 				dram_width = 16;
-	 			}
-	 		}
-	 		total_size = (dram_size*(dram_total_width/dram_width))/8;
+			is_ddr2 = ((reg >> 17) & 0x1);
+			if(is_ddr2){
+				if((reg >> 10) & 0x1){
+					dram_width = 16;
+				}else{
+					dram_width = 8;
+				}
+			}else{
+				if((reg >> 10) & 0x1){
+					dram_width = 32;
+				}else{
+					dram_width = 16;
+				}
+			}
+			total_size = (dram_size*(dram_total_width/dram_width))/8;
 
-	 		printf("DRAM_CONF_FROM: %s \n", boot_from_eeprom ? "EEPROM":"Boot-Strapping");
-	 		printf("DRAM_TYPE: %s \n", is_ddr2 ? "DDR2":"SDRAM");
-	 		printf("DRAM_SIZE: %d Mbits\n", dram_size);
-	 		printf("DRAM_WIDTH: %d bits\n", dram_width);
-	 		printf("DRAM_TOTAL_WIDTH: %d bits\n", dram_total_width );
-	 		printf("TOTAL_MEMORY_SIZE: %d MBytes\n", total_size);
-	 	}
-	 	printf("%s\n", FLASH_MSG);
-	 	printf("%s\n", "Date:" __DATE__ "  Time:" __TIME__ );
-	 	printf("============================================ \n");
-	 }
+			printf("DRAM_CONF_FROM: %s \n", boot_from_eeprom ? "EEPROM":"Boot-Strapping");
+			printf("DRAM_TYPE: %s \n", is_ddr2 ? "DDR2":"SDRAM");
+			printf("DRAM_SIZE: %d Mbits\n", dram_size);
+			printf("DRAM_WIDTH: %d bits\n", dram_width);
+			printf("DRAM_TOTAL_WIDTH: %d bits\n", dram_total_width );
+			printf("TOTAL_MEMORY_SIZE: %d MBytes\n", total_size);
+		}
+		printf("%s\n", FLASH_MSG);
+		printf("%s\n", "Date:" __DATE__ "  Time:" __TIME__ );
+		printf("============================================ \n");
+	}
 #else
-	 SHOW_VER_STR();
+	SHOW_VER_STR();
 #endif /* defined(CFG_ENV_IS_IN_SPI) || defined (CFG_ENV_IS_IN_NAND) */
 
 
 #elif (defined (RT6855_ASIC_BOARD) || defined (RT6855_FPGA_BOARD) ||  \
-	 defined (RT6855A_ASIC_BOARD) || defined (RT6855A_FPGA_BOARD) || \
-	 defined (MT7620_ASIC_BOARD) || defined (MT7620_FPGA_BOARD) || \
-	 defined (MT7628_ASIC_BOARD) || defined (MT7628_FPGA_BOARD)) && defined (UBOOT_RAM)
+	defined (RT6855A_ASIC_BOARD) || defined (RT6855A_FPGA_BOARD) || \
+	defined (MT7620_ASIC_BOARD) || defined (MT7620_FPGA_BOARD) || \
+	defined (MT7628_ASIC_BOARD) || defined (MT7628_FPGA_BOARD)) && defined (UBOOT_RAM)
 {
 	unsigned long chip_mode, dram_comp, dram_bus, is_ddr1, is_ddr2, data, cfg0, cfg1, size=0;
 	int dram_type_bit_offset = 0;
@@ -1842,23 +1842,23 @@ printf("icache: sets:%d, ways:%d, linesz:%d ,total:%d\n",
 	 * Now probe the MIPS32 / MIPS64 data cache.
 	 */
 
-	 if ((lsize = ((config1 >> 10) & 7)))
-	 	dcache_linesz = 2 << lsize;
-	 else
-	 	dcache_linesz = lsize;
-	 dcache_sets = 64 << ((config1 >> 13) & 7);
-	 dcache_ways = 1 + ((config1 >> 7) & 7);
+if ((lsize = ((config1 >> 10) & 7)))
+	dcache_linesz = 2 << lsize;
+else
+	dcache_linesz = lsize;
+dcache_sets = 64 << ((config1 >> 13) & 7);
+dcache_ways = 1 + ((config1 >> 7) & 7);
 
-	 dcache_size = dcache_sets *
-	 dcache_ways *
-	 dcache_linesz;
+dcache_size = dcache_sets *
+dcache_ways *
+dcache_linesz;
 
-	 printf("dcache: sets:%d, ways:%d, linesz:%d ,total:%d \n", 
-	 	dcache_sets, dcache_ways, dcache_linesz, dcache_size);
+printf("dcache: sets:%d, ways:%d, linesz:%d ,total:%d \n", 
+	dcache_sets, dcache_ways, dcache_linesz, dcache_size);
 
 #endif
 
-	 debug("\n ##### The CPU freq = %d MHZ #### \n",mips_cpu_feq/1000/1000);
+debug("\n ##### The CPU freq = %d MHZ #### \n",mips_cpu_feq/1000/1000);
 
 /*
 	if(*(volatile u_long *)(RALINK_SYSCTL_BASE + 0x0304) & (1<< 24))
@@ -1870,21 +1870,21 @@ printf("icache: sets:%d, ways:%d, linesz:%d ,total:%d\n",
 		debug("\nSDRAM bus set to 16 bit \n");
 	}
 */
-	debug(" estimate memory size =%d Mbytes\n",gd->ram_size /1024/1024 );
+debug(" estimate memory size =%d Mbytes\n",gd->ram_size /1024/1024 );
 
 #if defined (RT3052_ASIC_BOARD) || defined (RT3052_FPGA_BOARD)  || \
-	defined (RT3352_ASIC_BOARD) || defined (RT3352_FPGA_BOARD)  || \
-	defined (RT5350_ASIC_BOARD) || defined (RT5350_FPGA_BOARD)  || \
-	defined (MT7628_ASIC_BOARD) || defined (MT7628_FPGA_BOARD)
-	rt305x_esw_init();
+defined (RT3352_ASIC_BOARD) || defined (RT3352_FPGA_BOARD)  || \
+defined (RT5350_ASIC_BOARD) || defined (RT5350_FPGA_BOARD)  || \
+defined (MT7628_ASIC_BOARD) || defined (MT7628_FPGA_BOARD)
+rt305x_esw_init();
 #elif defined (RT6855_ASIC_BOARD) || defined (RT6855_FPGA_BOARD) || \
-	defined (MT7620_ASIC_BOARD) || defined (MT7620_FPGA_BOARD)
-	rt_gsw_init();
+defined (MT7620_ASIC_BOARD) || defined (MT7620_FPGA_BOARD)
+rt_gsw_init();
 #elif defined (RT6855A_ASIC_BOARD) || defined (RT6855A_FPGA_BOARD)
 #ifdef FPGA_BOARD
-	rt6855A_eth_gpio_reset();
+rt6855A_eth_gpio_reset();
 #endif
-	rt6855A_gsw_init();
+rt6855A_gsw_init();
 #elif defined (MT7621_ASIC_BOARD) || defined (MT7621_FPGA_BOARD)
 #if defined (MAC_TO_MT7530_MODE) || defined (GE_RGMII_INTERNAL_P0_AN) || defined (GE_RGMII_INTERNAL_P4_AN)
 	//enable MDIO
@@ -1981,20 +1981,25 @@ if (tftpramboot==0 && BootType != '4')
 
 if(BootType == '3') {
 	char *argv[2];
+	int tosavecasue=0;
 	sprintf(addr_str, "0x%X", CFG_KERN_ADDR);
 	argv[1] = &addr_str[0];
 	printf("   \n3: System Boot system code via Flash.\n");
 
 	udelay (10000);
-	s = getenv("bootcause");
-	printf("\n\rBootcause=%d",bootcause);
-	oldbootcause = s ? (int)simple_strtol(s, NULL, 10) : 0;
-	printf(" : Oldbootcause=%d\n\n",oldbootcause);
-    if(oldbootcause != bootcause){
-    	printf("\n\rbootcause=%d:oldcause=%d\n\n",bootcause,oldbootcause);
-        setenv("bootcause", bootcause==1 ? "1":(bootcause==2?"2":(bootcause==3?"3":"0")));
-        saveenv();
-    }
+	s = getenv("bootsave");
+	tosavecasue = s ? (int)simple_strtol(s, NULL, 10) : 0;
+	if ( tosavecasue == 1 ){
+		s = getenv("bootcause");
+		printf("\n\rBootcause=%d",bootcause);
+		oldbootcause = s ? (int)simple_strtol(s, NULL, 10) : 0;
+		printf(" : Oldbootcause=%d\n\n",oldbootcause);
+		if(oldbootcause != bootcause){
+			printf("\n\rbootcause=%d:oldcause=%d\n\n",bootcause,oldbootcause);
+			setenv("bootcause", bootcause == 1 ? "1":(bootcause==2 ? "2" : ( bootcause == 3 ? "3" : "0" )));
+			saveenv();
+		}
+	}
 
 // For MT7620
 /*
@@ -2470,146 +2475,146 @@ void adjust_crystal_circuit(void)
 /*
  *  Adjust core voltage to 1.2V using RF reg 26 for the 3052 two layer board.
  */
- void adjust_voltage(void)
- {
- 	int d = 0x25;
- 	rw_rf_reg(1, 26, &d);
- }
+void adjust_voltage(void)
+{
+	int d = 0x25;
+	rw_rf_reg(1, 26, &d);
+}
 
- void adjust_frequency(void)
- {
- 	u32 r23;
+void adjust_frequency(void)
+{
+	u32 r23;
 
 	//read from EE offset 0x3A
 #if defined (CFG_ENV_IS_IN_NAND)
- 	ranand_read((char *)&r23, CFG_FACTORY_ADDR-CFG_FLASH_BASE+0x3a, 1);
+	ranand_read((char *)&r23, CFG_FACTORY_ADDR-CFG_FLASH_BASE+0x3a, 1);
 #elif defined (CFG_ENV_IS_IN_SPI)
- 	raspi_read((char *)&r23, CFG_FACTORY_ADDR-CFG_FLASH_BASE+0x3a, 1);
+	raspi_read((char *)&r23, CFG_FACTORY_ADDR-CFG_FLASH_BASE+0x3a, 1);
 #else //CFG_ENV_IS_IN_FLASH
- 	r23 = *(volatile u32 *)(CFG_FACTORY_ADDR+0x38);
- 	r23 >>= 16;
+	r23 = *(volatile u32 *)(CFG_FACTORY_ADDR+0x38);
+	r23 >>= 16;
 #endif
- 	r23 &= 0xff;
+	r23 &= 0xff;
 	//write to RF R23
- 	rw_rf_reg(1, 23, &r23);
- }
+	rw_rf_reg(1, 23, &r23);
+}
 #endif
 
 #if defined (RT3352_ASIC_BOARD) || defined (RT3883_ASIC_BOARD)
- void adjust_rf_r17(void)
- {
- 	u32 r17;
- 	u32 i;
- 	u32 val;
- 	u32 j = 0;
+void adjust_rf_r17(void)
+{
+	u32 r17;
+	u32 i;
+	u32 val;
+	u32 j = 0;
 
 	//read from EE offset 0x3A
 #if defined (CFG_ENV_IS_IN_NAND)
- 	ranand_read((char *)&r17, CFG_FACTORY_ADDR-CFG_FLASH_BASE+0x3a, 1);
+	ranand_read((char *)&r17, CFG_FACTORY_ADDR-CFG_FLASH_BASE+0x3a, 1);
 #elif defined (CFG_ENV_IS_IN_SPI)
- 	raspi_read((char *)&r17, CFG_FACTORY_ADDR-CFG_FLASH_BASE+0x3a, 1);
+	raspi_read((char *)&r17, CFG_FACTORY_ADDR-CFG_FLASH_BASE+0x3a, 1);
 #else //CFG_ENV_IS_IN_FLASH
 #if defined (RT2880_ASIC_BOARD)
- 	r17 = *(volatile u32 *)(CFG_FACTORY_ADDR+0x3a);
+	r17 = *(volatile u32 *)(CFG_FACTORY_ADDR+0x3a);
 #elif defined (RT3883_ASIC_BOARD)
- 	r17 = *(volatile u32 *)(CFG_FACTORY_ADDR+0x44);
+	r17 = *(volatile u32 *)(CFG_FACTORY_ADDR+0x44);
 #endif
 
 #endif
- 	r17 &= 0xff;
+	r17 &= 0xff;
 	//printf("EE offset 0x3A is  0x%0X\n", r17);
- 	if((r17 == 0) || (r17 == 0xff)){
- 		r17 = 0x2c;
- 	}
+	if((r17 == 0) || (r17 == 0xff)){
+		r17 = 0x2c;
+	}
 
- 	if(r17 <= 0xf) {
- 		for(i=1; i<=r17; i++) {
+	if(r17 <= 0xf) {
+		for(i=1; i<=r17; i++) {
 		//write to RF R17
- 			val = i;
- 			val |= 1 << 7;
- 			rw_rf_reg(1, 17, &val);
- 			udelay(2000);
- 			rw_rf_reg(0, 17, &val);
+			val = i;
+			val |= 1 << 7;
+			rw_rf_reg(1, 17, &val);
+			udelay(2000);
+			rw_rf_reg(0, 17, &val);
 		//printf("Update RF_R17 to 0x%0X\n", val);
- 		}	
- 	}
- 	else{
- 		for(i=1; i<=0xf; i++) {
+		}	
+	}
+	else{
+		for(i=1; i<=0xf; i++) {
 		//write to RF R17
- 			val = i;
- 			val |= 1 << 7;
- 			rw_rf_reg(1, 17, &val);
- 			udelay(2000);
- 			rw_rf_reg(0, 17, &val);
- 			printf("Update RF_R17 to 0x%0X\n", val);
- 		}
- 		val = 0x1f;
- 		val |= 1 << 7;
- 		rw_rf_reg(1, 17, &val);
- 		udelay(2000);
- 		rw_rf_reg(0, 17, &val);
- 		printf("Update RF_R17 to 0x%0X\n", val);
+			val = i;
+			val |= 1 << 7;
+			rw_rf_reg(1, 17, &val);
+			udelay(2000);
+			rw_rf_reg(0, 17, &val);
+			printf("Update RF_R17 to 0x%0X\n", val);
+		}
+		val = 0x1f;
+		val |= 1 << 7;
+		rw_rf_reg(1, 17, &val);
+		udelay(2000);
+		rw_rf_reg(0, 17, &val);
+		printf("Update RF_R17 to 0x%0X\n", val);
 
- 		if(r17 <= 0x1f) {
- 			for(i=0x1e; i>=r17; i--) {
+		if(r17 <= 0x1f) {
+			for(i=0x1e; i>=r17; i--) {
 			//write to RF R17
- 				val = i;
- 				val |= 1 << 7;
- 				rw_rf_reg(1, 17, &val);
- 				udelay(2000);
- 				rw_rf_reg(0, 17, &val);
- 				printf("Update RF_R17 to 0x%0X\n", val);
- 			}
- 		} else if((r17 > 0x1f) && (r17 <=0x2f)){
- 			for(i=0x2f; i>=r17; i--) {
+				val = i;
+				val |= 1 << 7;
+				rw_rf_reg(1, 17, &val);
+				udelay(2000);
+				rw_rf_reg(0, 17, &val);
+				printf("Update RF_R17 to 0x%0X\n", val);
+			}
+		} else if((r17 > 0x1f) && (r17 <=0x2f)){
+			for(i=0x2f; i>=r17; i--) {
 			//write to RF R17
- 				val = i;
- 				val |= 1 << 7;
- 				rw_rf_reg(1, 17, &val);
- 				udelay(2000);
- 				rw_rf_reg(0, 17, &val);
+				val = i;
+				val |= 1 << 7;
+				rw_rf_reg(1, 17, &val);
+				udelay(2000);
+				rw_rf_reg(0, 17, &val);
 			//printf("Update RF_R17 to 0x%0X\n", val);
- 			}
- 		}else {
- 			val = 0x2f;
- 			val |= 1 << 7;
- 			rw_rf_reg(1, 17, &val);
- 			udelay(2000);
- 			rw_rf_reg(0, 17, &val);
+			}
+		}else {
+			val = 0x2f;
+			val |= 1 << 7;
+			rw_rf_reg(1, 17, &val);
+			udelay(2000);
+			rw_rf_reg(0, 17, &val);
 			//printf("Update RF_R17 to 0x%0X\n", val);
- 		}
- 		if((r17 > 0x2f) && (r17 <= 0x3f)){
- 			for(i=0x3f; i>=r17; i--) {
+		}
+		if((r17 > 0x2f) && (r17 <= 0x3f)){
+			for(i=0x3f; i>=r17; i--) {
 			//write to RF R17
- 				val = i;
- 				val |= 1 << 7;
- 				rw_rf_reg(1, 17, &val);
- 				udelay(2000);
- 				rw_rf_reg(0, 17, &val);
+				val = i;
+				val |= 1 << 7;
+				rw_rf_reg(1, 17, &val);
+				udelay(2000);
+				rw_rf_reg(0, 17, &val);
 			//printf("Update RF_R17 to 0x%0X\n", val);
- 			}
- 		}
- 		if(r17 > 0x3f){
- 			val = 0x3f;
- 			val |= 1 << 7;
- 			rw_rf_reg(1, 17, &val);
- 			udelay(2000);
- 			rw_rf_reg(0, 17, &val);
+			}
+		}
+		if(r17 > 0x3f){
+			val = 0x3f;
+			val |= 1 << 7;
+			rw_rf_reg(1, 17, &val);
+			udelay(2000);
+			rw_rf_reg(0, 17, &val);
 			//printf("Only Update RF_R17 to 0x%0X\n", val);
- 		}
- 	}
+		}
+	}
 	//rw_rf_reg(0, 17, &val);
 	//printf("Read RF_R17 = 0x%0X\n", val);
- }
+}
 #endif
 
 #if defined(RT3883_ASIC_BOARD) || defined(RT3352_ASIC_BOARD) || defined(RT5350_ASIC_BOARD) || defined(RT6855_ASIC_BOARD) || defined (MT7620_ASIC_BOARD) || defined (MT7628_ASIC_BOARD)
 /*
  * enter power saving mode
  */
- void config_usb_ehciohci(void)
- {
- 	u32 val;
+void config_usb_ehciohci(void)
+{
+	u32 val;
 
 	val = RALINK_REG(RT2880_RSTCTRL_REG);    // toggle host & device RST bit
 	val = val | RALINK_UHST_RST | RALINK_UDEV_RST;
